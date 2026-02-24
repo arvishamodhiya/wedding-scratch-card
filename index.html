@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forever Begins</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:
+    radial-gradient(circle at top,#ffd1dc,#ff9a9e),
+    linear-gradient(135deg,#ffdde1,#ee9ca7);
+  font-family:'Montserrat',sans-serif;
+  overflow:hidden;
+}
+
+/* Card */
+#card{
+  position:relative;
+  width:390px;
+  height:240px;
+  backdrop-filter:blur(18px);
+  background:rgba(255,255,255,0.25);
+  border-radius:28px;
+  box-shadow:
+    0 30px 60px rgba(0,0,0,.3),
+    inset 0 0 25px rgba(255,255,255,.5);
+  overflow:hidden;
+  animation:cardEnter 1.2s ease;
+}
+
+/* Neon animated border */
+#card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:2px;
+  border-radius:28px;
+  background:linear-gradient(270deg,#ff4d6d,#ffd6e0,#ff4d6d);
+  background-size:400% 400%;
+  animation:borderGlow 6s ease infinite;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  pointer-events:none;
+}
+
+#content{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  color:#8b0030;
+}
+
+#content span{
+  font-size:13px;
+  letter-spacing:3px;
+  opacity:.8;
+}
+
+#content h1{
+  margin:12px 0 6px;
+  font-size:36px;
+  animation:pulse 2.5s ease infinite;
+}
+
+#content p{
+  font-size:12px;
+  opacity:.7;
+}
+
+canvas{
+  position:absolute;
+  inset:0;
+  border-radius:28px;
+}
+
+/* Floating sparkles */
+.spark{
+  position:absolute;
+  bottom:-20px;
+  font-size:18px;
+  opacity:.7;
+  animation:floatUp linear infinite;
+}
+
+/* Confetti */
+.confetti{
+  position:absolute;
+  width:6px;
+  height:12px;
+  background:hotpink;
+  animation:fall linear forwards;
+}
+
+/* Animations */
+@keyframes floatUp{
+  from{transform:translateY(0);opacity:1}
+  to{transform:translateY(-280px);opacity:0}
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+}
+@keyframes borderGlow{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+@keyframes cardEnter{
+  from{opacity:0;transform:scale(.9)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes fall{
+  to{transform:translateY(300px) rotate(360deg);opacity:0}
+}
+</style>
+</head>
+
+<body>
+
+<div id="card">
+  <div id="content">
+    <span>OUR FOREVER BEGINS</span>
+    <h1>💍 02 • 02 • 2027 💍</h1>
+    <p>Scratch gently to reveal the magic</p>
+  </div>
+  <canvas id="scratch"></canvas>
+</div>
+
+<script>
+const canvas=document.getElementById("scratch");
+const ctx=canvas.getContext("2d");
+canvas.width=390;
+canvas.height=240;
+
+/* Scratch Layer */
+const grad=ctx.createLinearGradient(0,0,390,240);
+grad.addColorStop(0,"#f0f0f0");
+grad.addColorStop(1,"#ffffff");
+ctx.fillStyle=grad;
+ctx.fillRect(0,0,canvas.width,canvas.height);
+
+let drawing=false;
+let scratched=0;
+
+function scratch(x,y){
+  ctx.globalCompositeOperation="destination-out";
+  ctx.beginPath();
+  ctx.arc(x,y,26,0,Math.PI*2);
+  ctx.fill();
+  scratched+=1;
+  if(scratched>120) reveal();
+}
+
+function reveal(){
+  if(canvas.style.display==="none") return;
+  canvas.style.display="none";
+  confettiBlast();
+}
+
+canvas.addEventListener("touchstart",()=>drawing=true);
+canvas.addEventListener("touchend",()=>drawing=false);
+canvas.addEventListener("touchmove",(e)=>{
+  if(!drawing) return;
+  const r=canvas.getBoundingClientRect();
+  scratch(e.touches[0].clientX-r.left,e.touches[0].clientY-r.top);
+});
+
+/* Sparkles */
+setInterval(()=>{
+  const s=document.createElement("div");
+  s.className="spark";
+  s.innerHTML=Math.random()>0.5?"✨":"❤";
+  s.style.left=Math.random()*350+"px";
+  s.style.animationDuration=(4+Math.random()*3)+"s";
+  document.getElementById("card").appendChild(s);
+  setTimeout(()=>s.remove(),6000);
+},600);
+
+/* Confetti celebration */
+function confettiBlast(){
+  for(let i=0;i<80;i++){
+    const c=document.createElement("div");
+    c.className="confetti";
+    c.style.left=Math.random()*380+"px";
+    c.style.background=`hsl(${Math.random()*360},80%,60%)`;
+    c.style.animationDuration=(2+Math.random()*2)+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),4000);
+  }
+}
+</script>
+
+</body>
+</html>
